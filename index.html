@@ -26,31 +26,33 @@
     <button onclick="gui()">➤</button>
   </div>
 <script>
-  const API_KEY = "DAN_API_KEY_GROQ_VAO_DAY";
+  // 🔑 DÁN KEY GEMINI MỚI CỦA BẠN VÀO ĐÂY
+  const API_KEY = "AQ.Ab8RN6KdAbNxeiEb0pYlFu3rTn7cw5fXMOaiu_7mFmoGLlD9Iw";
+
   async function gui() {
     const input = document.getElementById('msg');
     const chat = document.getElementById('chat');
     const text = input.value.trim();
     if (!text) return;
+
     chat.innerHTML += `<div class="msg user">${text}</div>`;
     input.value = '';
     chat.scrollTop = chat.scrollHeight;
     chat.innerHTML += `<div class="msg bot" id="loading">⏳ Đang trả lời...</div>`;
     chat.scrollTop = chat.scrollHeight;
+
     try {
-      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+      const res = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + API_KEY
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'llama-3.1-8b-instant',
-          messages: [{ role: 'user', content: text }]
+          contents: [{ parts: [{ text: text }] }]
         })
       });
       const data = await res.json();
-      document.getElementById('loading').innerText = data.choices[0].message.content;
+      const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      document.getElementById('loading').innerText = reply ?? 'Lỗi: ' + JSON.stringify(data);
     } catch(e) {
       document.getElementById('loading').innerText = 'Lỗi: ' + e.message;
     }
