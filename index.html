@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LessWro Bot</title>
+<style>
+  body { margin:0; font-family:Arial; background:#343541; color:white; }
+  .header { background:#202123; padding:15px; text-align:center; font-weight:bold; }
+  #chat { padding:15px; height:calc(100vh - 130px); overflow-y:auto; }
+  .msg { margin:10px 0; padding:10px; border-radius:10px; max-width:80%; }
+  .user { background:#19C37D; margin-left:auto; }
+  .bot { background:#444654; }
+  .input-area { position:fixed; bottom:0; width:100%; display:flex; background:#40414F; padding:10px; }
+  input { flex:1; padding:12px; border:none; border-radius:8px; background:#555; color:white; }
+  button { padding:12px 20px; background:#19C37D; color:white; border:none; border-radius:8px; font-size:16px; }
+</style>
+</head>
+<body>
+  <div class="header">🤖 LessWro Bot</div>
+  <div id="chat">
+    <div class="msg bot">Chào bạn! Mình là AI nha! 😄</div>
+  </div>
+  <div class="input-area">
+    <input id="msg" placeholder="Nhập tin nhắn...">
+    <button onclick="gui()">➤</button>
+  </div>
+<script>
+  const API_KEY = "DAN_API_KEY_GROQ_VAO_DAY";
+  async function gui() {
+    const input = document.getElementById('msg');
+    const chat = document.getElementById('chat');
+    const text = input.value.trim();
+    if (!text) return;
+    chat.innerHTML += `<div class="msg user">${text}</div>`;
+    input.value = '';
+    chat.scrollTop = chat.scrollHeight;
+    chat.innerHTML += `<div class="msg bot" id="loading">⏳ Đang trả lời...</div>`;
+    chat.scrollTop = chat.scrollHeight;
+    try {
+      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + API_KEY
+        },
+        body: JSON.stringify({
+          model: 'llama-3.1-8b-instant',
+          messages: [{ role: 'user', content: text }]
+        })
+      });
+      const data = await res.json();
+      document.getElementById('loading').innerText = data.choices[0].message.content;
+    } catch(e) {
+      document.getElementById('loading').innerText = 'Lỗi: ' + e.message;
+    }
+    chat.scrollTop = chat.scrollHeight;
+  }
+</script>
+</body>
+</html>
