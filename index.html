@@ -26,8 +26,8 @@
     <button onclick="gui()">➤</button>
   </div>
 <script>
-  // 🔑 DÁN KEY GEMINI MỚI CỦA BẠN VÀO ĐÂY
-  const API_KEY = "AQ.Ab8RN6KdAbNxeiEb0pYlFu3rTn7cw5fXMOaiu_7mFmoGLlD9Iw";
+  // 🔑 DÁN KEY OPENROUTER VÀO ĐÂY (dạng sk-or-v1-...)
+  const API_KEY = "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";
 
   async function gui() {
     const input = document.getElementById('msg');
@@ -42,16 +42,19 @@
     chat.scrollTop = chat.scrollHeight;
 
     try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
-      const res = await fetch(url, {
+      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + API_KEY
+        },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: text }] }]
+          model: 'deepseek/deepseek-r1:free',
+          messages: [{ role: 'user', content: text }]
         })
       });
       const data = await res.json();
-      const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      const reply = data.choices?.[0]?.message?.content;
       document.getElementById('loading').innerText = reply ?? 'Lỗi: ' + JSON.stringify(data);
     } catch(e) {
       document.getElementById('loading').innerText = 'Lỗi: ' + e.message;
